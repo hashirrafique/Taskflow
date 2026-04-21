@@ -1,0 +1,17 @@
+# Convenience compose file — runs just MongoDB for local development.
+# Start with:  docker compose up -d
+# Stop with:   docker compose down
+# Your data persists in the `mongo-data` named volume.
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: taskflow-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
