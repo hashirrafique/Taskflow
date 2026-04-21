@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -17,8 +18,9 @@ app.use(
     credentials: true,
   })
 );
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json({ limit: '1mb' }));
+app.use('/public', express.static(path.join(__dirname, '../public')));
 if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 
 // Rate limit auth endpoints

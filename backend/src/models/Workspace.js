@@ -61,6 +61,8 @@ const workspaceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+workspaceSchema.index({ 'members.user': 1 });
+
 // Generate invite code before first save
 workspaceSchema.pre('validate', function (next) {
   if (!this.inviteCode) {

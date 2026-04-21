@@ -35,6 +35,21 @@ async function request<T>(path: string, method = 'GET', body?: any): Promise<T> 
   return data as T;
 }
 
+async function uploadFile<T>(path: string, formData: FormData): Promise<T> {
+  const headers: Record<string, string> = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(data.message || `Request failed (${res.status})`, res.status);
+  return data as T;
+}
+
 export const api = {
   // auth
   register: (body: { name: string; email: string; password: string }) =>
@@ -42,6 +57,8 @@ export const api = {
   login: (body: { email: string; password: string }) =>
     request<{ token: string; user: any }>('/api/auth/login', 'POST', body),
   me: () => request<{ user: any }>('/api/auth/me'),
+  uploadProfilePic: (formData: FormData) =>
+    uploadFile<{ user: any; profilePic: string }>('/api/auth/profile-pic', formData),
 
   // workspaces
   listWorkspaces: () => request<{ workspaces: any[] }>('/api/workspaces'),

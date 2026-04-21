@@ -1,6 +1,9 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const { signToken } = require('../utils/token');
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
 
 // POST /api/auth/register
 const register = async (req, res) => {
@@ -24,7 +27,7 @@ const register = async (req, res) => {
 
   res.status(201).json({
     token,
-    user: { id: user._id, name: user.name, email: user.email, avatarColor: user.avatarColor },
+    user: { id: user._id, name: user.name, email: user.email, avatarColor: user.avatarColor, profilePic: user.profilePic },
   });
 };
 
@@ -44,7 +47,7 @@ const login = async (req, res) => {
   const token = signToken(user._id);
   res.json({
     token,
-    user: { id: user._id, name: user.name, email: user.email, avatarColor: user.avatarColor },
+    user: { id: user._id, name: user.name, email: user.email, avatarColor: user.avatarColor, profilePic: user.profilePic },
   });
 };
 
@@ -53,4 +56,36 @@ const me = async (req, res) => {
   res.json({ user: req.user });
 };
 
-module.exports = { register, login, me };
+// POST /api/auth/profile-pic
+const uploadProfilePic = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  const filename = `user-${req.user._id}-${Date.now()}.webp`;
+  const uploadDir = path.join(__dirname, '../../public/uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  const filepath = path.join(uploadDir, filename);
+
+  try {
+    await sharp(req.file.buffer)
+      .resize(400, 400, { fit: 'cover' })
+      .webp({ quality: 80 })
+      .toFile(filepath);
+
+    const profilePicUrl = `/public/uploads/${filename}`;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePic: profilePicUrl },
+      { new: true }
+    );
+
+    res.json({ profilePic: profilePicUrl, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Error processing image', error: error.message });
+  }
+};
+
+module.exports = { register, login, me, uploadProfilePic };

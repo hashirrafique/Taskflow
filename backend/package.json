@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed": "node src/utils/seed.js"
+    "seed": "node src/utils/seed.js",
+    "test": "cross-env NODE_ENV=test JWT_SECRET=testsecret jest --forceExit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -16,13 +17,22 @@
     "express-rate-limit": "^7.4.0",
     "express-validator": "^7.2.0",
     "helmet": "^7.1.0",
+    "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.2",
     "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "redis": "^5.12.1",
+    "sharp": "^0.34.5",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "cross-env": "^10.1.0",
+    "jest": "^30.3.0",
+    "mongodb-memory-server": "^11.0.1",
+    "node-mocks-http": "^1.17.2",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.2.2"
   },
   "engines": {
     "node": ">=18.0.0"

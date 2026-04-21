@@ -57,6 +57,8 @@ const taskSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+taskSchema.index({ workspace: 1, status: 1, order: 1 });
+
 taskSchema.statics.STATUSES = STATUSES;
 taskSchema.statics.PRIORITIES = PRIORITIES;
 

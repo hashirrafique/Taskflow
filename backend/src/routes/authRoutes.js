@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
-const { register, login, me } = require('../controllers/authController');
+const { register, login, me, uploadProfilePic } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 router.post(
   '/register',
@@ -23,5 +24,7 @@ router.post(
 );
 
 router.get('/me', protect, me);
+
+router.post('/profile-pic', protect, upload.single('profilePic'), uploadProfilePic);
 
 module.exports = router;

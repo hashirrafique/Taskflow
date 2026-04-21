@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '#6366f1',
     },
+    profilePic: {
+      type: String,
+      default: null, // Stores the URL of the uploaded image
+    },
   },
   { timestamps: true }
 );

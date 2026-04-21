@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const { protect } = require('../middleware/auth');
 const { loadWorkspace, requireRole } = require('../middleware/rbac');
+const { cache, clearCache } = require('../middleware/cache');
 const ctrl = require('../controllers/workspaceController');
 
 // All workspace routes require auth
 router.use(protect);
 
-router.get('/', ctrl.listMyWorkspaces);
+router.get('/', cache('user_workspaces'), ctrl.listMyWorkspaces);
 router.post('/', ctrl.createWorkspace);
 router.post('/join', ctrl.joinByInvite);
 

@@ -1,6 +1,7 @@
 const Workspace = require('../models/Workspace');
 const User = require('../models/User');
 const Task = require('../models/Task');
+const { clearCache } = require('../middleware/cache');
 
 // GET /api/workspaces -> list all workspaces where user is owner or member
 const listMyWorkspaces = async (req, res) => {
@@ -41,6 +42,7 @@ const createWorkspace = async (req, res) => {
     members: [], // owner is implicit
   });
 
+  await clearCache('user_workspaces')(req.user._id);
   res.status(201).json({ workspace });
 };
 
@@ -72,6 +74,7 @@ const deleteWorkspace = async (req, res) => {
   }
   await Task.deleteMany({ workspace: req.workspace._id });
   await req.workspace.deleteOne();
+  await clearCache('user_workspaces')(req.user._id);
   res.json({ message: 'Workspace deleted' });
 };
 
@@ -90,6 +93,7 @@ const joinByInvite = async (req, res) => {
 
   workspace.members.push({ user: req.user._id, role: 'member' });
   await workspace.save();
+  await clearCache('user_workspaces')(req.user._id);
   res.json({ message: 'Joined workspace', workspaceId: workspace._id });
 };
 
