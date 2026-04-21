@@ -59,6 +59,10 @@ export const api = {
   me: () => request<{ user: any }>('/api/auth/me'),
   uploadProfilePic: (formData: FormData) =>
     uploadFile<{ user: any; profilePic: string }>('/api/auth/profile-pic', formData),
+  updateProfile: (body: { name?: string; username?: string; bio?: string; website?: string; location?: string; avatarColor?: string }) =>
+    request<{ user: any }>('/api/auth/profile', 'PATCH', body),
+  changePassword: (body: { currentPassword: string; newPassword: string }) =>
+    request<{ message: string }>('/api/auth/change-password', 'PATCH', body),
 
   // workspaces
   listWorkspaces: () => request<{ workspaces: any[] }>('/api/workspaces'),
@@ -84,6 +88,22 @@ export const api = {
     request<{ message: string }>(`/api/workspaces/${wsId}/tasks/${taskId}`, 'DELETE'),
   moveTask: (wsId: string, taskId: string, status: string, order: number) =>
     request<{ task: any }>(`/api/workspaces/${wsId}/tasks/${taskId}/move`, 'POST', { status, order }),
+
+  // subtasks
+  addSubtask: (wsId: string, taskId: string, title: string) =>
+    request<{ task: any }>(`/api/workspaces/${wsId}/tasks/${taskId}/subtasks`, 'POST', { title }),
+  toggleSubtask: (wsId: string, taskId: string, subtaskId: string, isCompleted: boolean) =>
+    request<{ task: any }>(`/api/workspaces/${wsId}/tasks/${taskId}/subtasks/${subtaskId}`, 'PATCH', { isCompleted }),
+  deleteSubtask: (wsId: string, taskId: string, subtaskId: string) =>
+    request<{ task: any }>(`/api/workspaces/${wsId}/tasks/${taskId}/subtasks/${subtaskId}`, 'DELETE'),
+
+  // comments
+  listComments: (wsId: string, taskId: string) =>
+    request<{ comments: any[] }>(`/api/workspaces/${wsId}/tasks/${taskId}/comments`),
+  addComment: (wsId: string, taskId: string, text: string) =>
+    request<{ comment: any }>(`/api/workspaces/${wsId}/tasks/${taskId}/comments`, 'POST', { text }),
+  deleteComment: (wsId: string, taskId: string, commentId: string) =>
+    request<{ message: string }>(`/api/workspaces/${wsId}/tasks/${taskId}/comments/${commentId}`, 'DELETE'),
 };
 
 export { API_URL };

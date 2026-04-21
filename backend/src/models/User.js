@@ -30,7 +30,31 @@ const userSchema = new mongoose.Schema(
     },
     profilePic: {
       type: String,
-      default: null, // Stores the URL of the uploaded image
+      default: null,
+    },
+    username: {
+      type: String,
+      trim: true,
+      maxlength: 30,
+      default: null,
+    },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: 200,
+      default: null,
+    },
+    website: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: null,
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: 60,
+      default: null,
     },
   },
   { timestamps: true }

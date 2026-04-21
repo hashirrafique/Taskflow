@@ -88,4 +88,42 @@ const uploadProfilePic = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me, uploadProfilePic };
+// PATCH /api/auth/profile
+const updateProfile = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
+  }
+
+  const { name, username, bio, website, location, avatarColor } = req.body;
+  const updates = {};
+  if (name !== undefined) updates.name = name;
+  if (username !== undefined) updates.username = username;
+  if (bio !== undefined) updates.bio = bio;
+  if (website !== undefined) updates.website = website;
+  if (location !== undefined) updates.location = location;
+  if (avatarColor !== undefined) updates.avatarColor = avatarColor;
+
+  const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true, runValidators: true });
+  res.json({ user });
+};
+
+// PATCH /api/auth/change-password
+const changePassword = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user || !(await user.matchPassword(currentPassword))) {
+    return res.status(401).json({ message: 'Current password is incorrect' });
+  }
+
+  user.password = newPassword;
+  await user.save();
+  res.json({ message: 'Password updated successfully' });
+};
+
+module.exports = { register, login, me, uploadProfilePic, updateProfile, changePassword };

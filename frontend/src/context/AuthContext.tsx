@@ -10,6 +10,11 @@ interface User {
   email: string;
   avatarColor?: string;
   profilePic?: string;
+  username?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  createdAt?: string;
 }
 
 interface AuthCtx {
