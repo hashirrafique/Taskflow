@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 import {
   CheckCircle2, Zap, Shield, ArrowRight, Users, BarChart3, MessageSquare,
   Layers, Bell, Lock, Star, ChevronRight, Github, Twitter, Globe,
@@ -362,7 +363,6 @@ export default function Home() {
             { q: 'Is TaskFlow really free to start?', a: "Yes. No credit card required. Our free plan includes 3 workspaces, 5 members each, and unlimited tasks to get you started." },
             { q: 'How does real-time collaboration work?', a: "TaskFlow uses WebSockets to push changes instantly across all connected clients. When a teammate moves a task, you see it move in real-time — no page refresh needed." },
             { q: 'Can I import my data from Trello or Jira?', a: "CSV import is available on all plans. We're working on native Trello and Jira importers for the Pro plan. You can also use our API for custom migrations." },
-import TaskFlowLogo from '@/components/TaskFlowLogo';
             { q: 'How secure is my data?', a: "All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Passwords are hashed with bcrypt. We run penetration tests quarterly and operate with zero-trust networking." },
             { q: 'What happens to my data if I cancel?', a: "You have 30 days to export everything after cancellation. We provide full data exports in JSON and CSV format. Your data is never held hostage." },
             { q: 'Do you offer discounts for startups or nonprofits?', a: "Yes — 50% off Pro for qualifying nonprofits and early-stage startups. Contact us at support@taskflow.app with proof of status." },
