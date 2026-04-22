@@ -35,6 +35,9 @@ const initSocket = (httpServer) => {
   io.on('connection', (socket) => {
     console.log(`[socket] connected ${socket.user.name} (${socket.id})`);
 
+    // Auto-join a user-specific room for direct notifications
+    socket.join(`user:${socket.user.id}`);
+
     // Join a workspace room (verifies membership on the server)
     socket.on('workspace:join', async (workspaceId) => {
       try {
@@ -68,4 +71,10 @@ const emitToWorkspace = (workspaceId, event, payload) => {
   io.to(`workspace:${workspaceId}`).emit(event, payload);
 };
 
-module.exports = { initSocket, emitToWorkspace };
+// Emit to a specific user (all their connected sockets)
+const emitToUser = (userId, event, payload) => {
+  if (!io || !userId) return;
+  io.to(`user:${userId.toString()}`).emit(event, payload);
+};
+
+module.exports = { initSocket, emitToWorkspace, emitToUser };

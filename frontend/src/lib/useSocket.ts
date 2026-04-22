@@ -8,6 +8,8 @@ type Handlers = {
   onTaskUpdated?: (task: any) => void;
   onTaskMoved?: (task: any) => void;
   onTaskDeleted?: (payload: { _id: string }) => void;
+  onCommentCreated?: (comment: any) => void;
+  onCommentDeleted?: (payload: { _id: string; taskId: string }) => void;
 };
 
 export function useWorkspaceSocket(workspaceId: string | null, handlers: Handlers) {
@@ -35,6 +37,8 @@ export function useWorkspaceSocket(workspaceId: string | null, handlers: Handler
     socket.on('task:updated', (t) => handlersRef.current.onTaskUpdated?.(t));
     socket.on('task:moved', (t) => handlersRef.current.onTaskMoved?.(t));
     socket.on('task:deleted', (p) => handlersRef.current.onTaskDeleted?.(p));
+    socket.on('comment:created', (c) => handlersRef.current.onCommentCreated?.(c));
+    socket.on('comment:deleted', (p) => handlersRef.current.onCommentDeleted?.(p));
 
     return () => {
       socket.emit('workspace:leave', workspaceId);

@@ -56,6 +56,43 @@ const userSchema = new mongoose.Schema(
       maxlength: 60,
       default: null,
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerifyToken: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+      default: null,
+    },
+    themePreference: {
+      type: String,
+      enum: ['dark', 'light', 'system'],
+      default: 'dark',
+    },
+    notificationPrefs: {
+      taskAssigned: { type: Boolean, default: true },
+      taskCommented: { type: Boolean, default: true },
+      taskDue: { type: Boolean, default: true },
+      workspaceInvite: { type: Boolean, default: true },
+      memberJoined: { type: Boolean, default: false },
+      weeklyDigest: { type: Boolean, default: true },
+      emailUpdates: { type: Boolean, default: false },
+    },
+    lastActiveAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

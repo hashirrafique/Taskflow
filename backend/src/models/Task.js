@@ -29,6 +29,48 @@ const taskSchema = new mongoose.Schema(
       enum: PRIORITIES,
       default: 'medium',
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
+    labels: [
+      {
+        name: { type: String, required: true, maxlength: 30 },
+        color: { type: String, default: '#6366f1' },
+      },
+    ],
+    coverColor: {
+      type: String,
+      default: null,
+    },
+    subtasks: [
+      {
+        title: { type: String, required: true },
+        isCompleted: { type: Boolean, default: false },
+      },
+    ],
+    watchers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    timeEstimate: {
+      type: Number, // minutes
+      default: 0,
+    },
+    timeSpent: {
+      type: Number, // minutes
+      default: 0,
+    },
+    startDate: {
+      type: Date,
+      default: null,
+    },
+    completedAt: {
+      type: Date,
+      default: null,
+    },
     workspace: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Workspace',

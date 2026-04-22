@@ -1,6 +1,10 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
-const { register, login, me, uploadProfilePic, updateProfile, changePassword } = require('../controllers/authController');
+const {
+  register, login, me, uploadProfilePic, updateProfile, changePassword,
+  forgotPassword, resetPassword, requestEmailVerification, verifyEmail,
+  updateNotificationPrefs, updateTheme, deleteAccount,
+} = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
@@ -31,9 +35,9 @@ router.patch(
   '/profile',
   protect,
   [
-    body('name').optional().isString().trim().isLength({ min: 2, max: 60 }).withMessage('Name must be 2-60 chars'),
+    body('name').optional().isString().trim().isLength({ min: 2, max: 60 }),
     body('username').optional().isString().trim().isLength({ max: 30 }).matches(/^[a-zA-Z0-9_.-]*$/).withMessage('Username can only contain letters, numbers, underscores, dots, hyphens'),
-    body('bio').optional().isString().trim().isLength({ max: 200 }).withMessage('Bio must be under 200 chars'),
+    body('bio').optional().isString().trim().isLength({ max: 200 }),
     body('website').optional().isString().trim().isLength({ max: 100 }),
     body('location').optional().isString().trim().isLength({ max: 60 }),
     body('avatarColor').optional().isString().trim(),
@@ -50,5 +54,16 @@ router.patch(
   ],
   changePassword
 );
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
+
+router.post('/verify-email/request', protect, requestEmailVerification);
+router.post('/verify-email', verifyEmail);
+
+router.patch('/notification-prefs', protect, updateNotificationPrefs);
+router.patch('/theme', protect, updateTheme);
+
+router.delete('/account', protect, deleteAccount);
 
 module.exports = router;

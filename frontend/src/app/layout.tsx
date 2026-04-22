@@ -1,16 +1,20 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { ToastProvider } from '@/context/ToastContext';
+import CommandPaletteHost from '@/components/CommandPaletteHost';
 
 export const metadata: Metadata = {
   title: 'TaskFlow — Project Management Platform',
   description:
-    'A real-time collaborative task board with role-based access control, workspaces, and WebSocket updates.',
+    'A real-time collaborative task management platform with workspaces, analytics, and team collaboration.',
+  keywords: 'task management, project management, team collaboration, kanban, productivity',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -20,7 +24,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ToastProvider>
+              {children}
+              <CommandPaletteHost />
+            </ToastProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

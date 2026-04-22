@@ -8,6 +8,9 @@ const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/authRoutes');
 const workspaceRoutes = require('./routes/workspaceRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const userRoutes = require('./routes/userRoutes');
 const { notFound, errorHandler } = require('./middleware/error');
 
 const app = express();
@@ -42,6 +45,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/workspaces/:workspaceId/tasks', taskRoutes);
+app.use('/api/workspaces/:workspaceId/activity', activityRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/me', userRoutes);
 
 // 404 + error
 app.use(notFound);

@@ -1,17 +1,24 @@
 const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const connectDB = async () => {
   try {
-    const uri = process.env.MONGO_URI;
-    if (!uri) throw new Error('MONGO_URI is not defined in environment');
-
-    const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 8000,
-    });
-
-    console.log(`[db] MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
+    let uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/taskflow';
+    
+    try {
+      const conn = await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 2000,
+      });
+      console.log(`[db] MongoDB connected natively: ${conn.connection.host}/${conn.connection.name}`);
+    } catch (err) {
+      console.warn(`[db] Native MongoDB connection failed, falling back to In-Memory DB: ${err.message}`);
+      const mongoServer = await MongoMemoryServer.create();
+      uri = mongoServer.getUri();
+      const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 });
+      console.log(`[db] In-Memory MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
+    }
   } catch (err) {
-    console.error(`[db] MongoDB connection error: ${err.message}`);
+    console.error(`[db] Critical MongoDB error: ${err.message}`);
     process.exit(1);
   }
 };

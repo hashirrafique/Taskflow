@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, FormEvent, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { api, API_URL } from '@/lib/api';
 import Topbar from '@/components/Topbar';
@@ -26,9 +28,15 @@ const AVATAR_COLORS = [
   '#8b5cf6', '#ef4444', '#f97316', '#14b8a6', '#84cc16',
 ];
 
-export default function SettingsPage() {
+function SettingsInner() {
   const { loading: authLoading, user } = useRequireAuth();
-  const [activeTab, setActiveTab] = useState('profile');
+  const params = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => params.get('tab') || 'profile');
+
+  useEffect(() => {
+    const tab = params.get('tab');
+    if (tab && TABS.find((t) => t.id === tab)) setActiveTab(tab);
+  }, [params]);
 
   if (authLoading || !user) {
     return (
@@ -93,6 +101,14 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-ink-400" /></div>}>
+      <SettingsInner />
+    </Suspense>
   );
 }
 
@@ -402,6 +418,7 @@ function SecurityTab() {
 /* ── Appearance Tab ── */
 function AppearanceTab() {
   const { user, updateUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [selectedColor, setSelectedColor] = useState(user?.avatarColor || '#6366f1');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -478,21 +495,22 @@ function AppearanceTab() {
         <p className="text-ink-400 text-sm mb-5">Choose your preferred interface theme</p>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { id: 'dark', label: 'Dark', preview: 'bg-ink-950', active: true },
-            { id: 'light', label: 'Light', preview: 'bg-white', active: false },
-            { id: 'system', label: 'System', preview: 'bg-gradient-to-br from-ink-950 to-white', active: false },
+            { id: 'dark', label: 'Dark', preview: 'bg-ink-950' },
+            { id: 'light', label: 'Light', preview: 'bg-slate-100' },
+            { id: 'system', label: 'System', preview: 'bg-gradient-to-br from-ink-950 to-slate-200' },
           ].map((t) => (
             <button
               key={t.id}
-              className={`p-4 rounded-xl border text-sm font-medium transition-all ${t.active ? 'border-accent/60 bg-accent/10 text-accent' : 'border-white/8 text-ink-400 hover:border-white/20 hover:text-white'}`}
+              onClick={() => setTheme(t.id as any)}
+              className={`p-4 rounded-xl border text-sm font-medium transition-all ${theme === t.id ? 'border-accent/60 bg-accent/10 text-accent' : 'border-white/8 text-ink-400 hover:border-white/20 hover:text-white'}`}
             >
               <div className={`w-full h-10 rounded-lg mb-2.5 ${t.preview} border border-white/10`} />
               {t.label}
-              {t.active && <span className="ml-1.5 text-xs">(Active)</span>}
+              {theme === t.id && <span className="ml-1.5 text-xs">(Active)</span>}
             </button>
           ))}
         </div>
-        <p className="text-xs text-ink-500 mt-3">Dark theme is currently active. Light mode coming soon.</p>
+        <p className="text-xs text-ink-500 mt-3">Currently using <strong className="text-ink-300">{theme}</strong> theme.</p>
       </div>
     </div>
   );

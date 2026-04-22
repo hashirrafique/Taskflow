@@ -1,17 +1,51 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Zap, Shield, ArrowRight, Users, BarChart3, MessageSquare,
   Layers, Bell, Lock, Star, ChevronRight, Github, Twitter, Globe,
-  Kanban, Clock, Tag, Sparkles
+  Kanban, Clock, Tag, Sparkles, ChevronDown
 } from 'lucide-react';
+
+function FaqItem({ q, a, i }: { q: string; a: string; i: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: i * 0.06 }}
+      className="card overflow-hidden"
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-white/[0.02] transition-colors"
+      >
+        <span className="font-semibold text-sm pr-4">{q}</span>
+        <ChevronDown className={`w-4 h-4 text-ink-400 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <p className="px-6 pb-5 text-sm text-ink-400 leading-relaxed">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 22 } }
 };
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } } };
 
@@ -39,6 +73,7 @@ export default function Home() {
           <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
           <a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a>
           <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} className="flex gap-3 items-center">
           <Link href="/login" className="text-ink-300 hover:text-white font-medium transition-colors text-sm px-3 py-1.5">Sign in</Link>
@@ -316,6 +351,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="relative z-10 max-w-3xl mx-auto px-6 py-28">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+          <span className="text-accent text-sm font-semibold uppercase tracking-widest mb-3 block">FAQ</span>
+          <h2 className="font-display text-5xl font-bold mb-4">Questions? <span className="text-accent">Answered.</span></h2>
+        </motion.div>
+        <div className="space-y-3">
+          {[
+            { q: 'Is TaskFlow really free to start?', a: "Yes. No credit card required. Our free plan includes 3 workspaces, 5 members each, and unlimited tasks to get you started." },
+            { q: 'How does real-time collaboration work?', a: "TaskFlow uses WebSockets to push changes instantly across all connected clients. When a teammate moves a task, you see it move in real-time — no page refresh needed." },
+            { q: 'Can I import my data from Trello or Jira?', a: "CSV import is available on all plans. We're working on native Trello and Jira importers for the Pro plan. You can also use our API for custom migrations." },
+            { q: 'How secure is my data?', a: "All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Passwords are hashed with bcrypt. We run penetration tests quarterly and operate with zero-trust networking." },
+            { q: 'What happens to my data if I cancel?', a: "You have 30 days to export everything after cancellation. We provide full data exports in JSON and CSV format. Your data is never held hostage." },
+            { q: 'Do you offer discounts for startups or nonprofits?', a: "Yes — 50% off Pro for qualifying nonprofits and early-stage startups. Contact us at support@taskflow.app with proof of status." },
+          ].map(({ q, a }, i) => (
+            <FaqItem key={i} q={q} a={a} i={i} />
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="relative z-10 max-w-4xl mx-auto px-6 py-28 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -349,15 +404,15 @@ export default function Home() {
               <p className="text-ink-400 text-sm leading-relaxed">The ultra-fast, radically beautiful project management workspace.</p>
             </div>
             {[
-              { title: 'Product', links: ['Features', 'Pricing', 'Changelog', 'Roadmap'] },
-              { title: 'Company', links: ['About', 'Blog', 'Careers', 'Press'] },
-              { title: 'Support', links: ['Documentation', 'API Reference', 'Status', 'Contact'] },
+              { title: 'Product', links: [{ label: 'Features', href: '#features' }, { label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '#faq' }, { label: 'Changelog', href: '#' }] },
+              { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }, { label: 'Careers', href: '#' }, { label: 'Blog', href: '#' }] },
+              { title: 'Legal', links: [{ label: 'Privacy Policy', href: '/privacy' }, { label: 'Terms of Service', href: '/terms' }, { label: 'Status', href: '#' }, { label: 'Security', href: '#' }] },
             ].map((col) => (
               <div key={col.title}>
                 <h4 className="font-semibold text-sm text-white mb-4 uppercase tracking-wider">{col.title}</h4>
                 <ul className="space-y-2.5">
                   {col.links.map((l) => (
-                    <li key={l}><a href="#" className="text-ink-400 text-sm hover:text-white transition-colors">{l}</a></li>
+                    <li key={l.label}><Link href={l.href} className="text-ink-400 text-sm hover:text-white transition-colors">{l.label}</Link></li>
                   ))}
                 </ul>
               </div>
