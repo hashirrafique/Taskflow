@@ -132,6 +132,7 @@ const analyticsOverview = async (req, res) => {
       tasks: totalTasks,
       completed: statusMap.done || 0,
       inProgress: statusMap.in_progress || 0,
+      inReview: statusMap.in_review || 0,
       todo: statusMap.todo || 0,
       completionRate,
       overdue,
@@ -141,9 +142,11 @@ const analyticsOverview = async (req, res) => {
     byStatus: {
       todo: statusMap.todo || 0,
       in_progress: statusMap.in_progress || 0,
+      in_review: statusMap.in_review || 0,
       done: statusMap.done || 0,
     },
     byPriority: {
+      urgent: priorityMap.urgent || 0,
       high: priorityMap.high || 0,
       medium: priorityMap.medium || 0,
       low: priorityMap.low || 0,
