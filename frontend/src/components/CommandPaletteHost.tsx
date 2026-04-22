@@ -1,12 +1,12 @@
 'use client';
-import { useState } from 'react';
 import { useKeyboardShortcut } from '@/lib/useKeyboardShortcut';
 import CommandPalette from './CommandPalette';
+import { useCommandPalette } from '@/context/CommandPaletteContext';
 
 export default function CommandPaletteHost() {
-  const [open, setOpen] = useState(false);
+  const { open, openPalette, closePalette } = useCommandPalette();
 
-  useKeyboardShortcut('k', () => setOpen(true), { ctrlOrMeta: true });
+  useKeyboardShortcut('k', openPalette, { ctrlOrMeta: true });
 
-  return <CommandPalette open={open} onClose={() => setOpen(false)} />;
+  return <CommandPalette open={open} onClose={closePalette} />;
 }

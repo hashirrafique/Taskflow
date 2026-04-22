@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { CommandPaletteProvider } from '@/context/CommandPaletteContext';
 import CommandPaletteHost from '@/components/CommandPaletteHost';
 
 export const metadata: Metadata = {
@@ -27,8 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
-              {children}
-              <CommandPaletteHost />
+              <CommandPaletteProvider>
+                {children}
+                <CommandPaletteHost />
+              </CommandPaletteProvider>
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -21,8 +21,8 @@ function cn(...inputs: ClassValue[]) {
 type Subtask = { _id: string; title: string; isCompleted: boolean };
 type Task = {
   _id: string; title: string; description: string;
-  status: 'todo' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high';
+  status: 'todo' | 'in_progress' | 'in_review' | 'done';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   order: number;
   tags?: string[];
   subtasks?: Subtask[];
@@ -33,11 +33,13 @@ type Task = {
 const COLUMNS: { key: Task['status']; label: string; color: string }[] = [
   { key: 'todo', label: 'To do', color: '#8e8e9e' },
   { key: 'in_progress', label: 'In progress', color: '#f59e0b' },
+  { key: 'in_review', label: 'In review', color: '#a78bfa' },
   { key: 'done', label: 'Done', color: '#10b981' },
 ];
 
 const PRIORITY_STYLE: Record<string, string> = {
-  high: 'bg-red-500/10 text-red-400 border-red-500/20',
+  urgent: 'bg-red-600/15 text-red-400 border-red-500/25',
+  high: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   medium: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   low: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
 };
@@ -263,6 +265,9 @@ export default function WorkspacePage() {
             onSave={async (data: any) => {
               await api.createTask(id, data);
             }}
+            onTaskUpdated={(updatedTask: any) => {
+              setTasks(prev => prev.map(t => t._id === updatedTask._id ? updatedTask : t));
+            }}
           />
         )}
         {editing && (
@@ -279,6 +284,10 @@ export default function WorkspacePage() {
             onDelete={async () => {
               await api.deleteTask(id, editing._id);
               setEditing(null);
+            }}
+            onTaskUpdated={(updatedTask: any) => {
+              setTasks(prev => prev.map(t => t._id === updatedTask._id ? updatedTask : t));
+              setEditing(updatedTask);
             }}
           />
         )}
@@ -320,7 +329,7 @@ function TaskCard({ task, canEdit, dragging, onDragStart, onDragEnd, onClick }: 
         dragging && "opacity-50 scale-95 shadow-none"
       )}
     >
-      <div className="absolute top-0 left-0 w-1 h-full" style={{ background: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#3b82f6' }} />
+      <div className="absolute top-0 left-0 w-1 h-full" style={{ background: task.priority === 'urgent' ? '#dc2626' : task.priority === 'high' ? '#f97316' : task.priority === 'medium' ? '#f59e0b' : '#3b82f6' }} />
       
       <div className="flex items-start justify-between gap-3 mb-2">
         <p className="text-[14px] leading-snug font-medium text-ink-50">{task.title}</p>
@@ -358,7 +367,7 @@ function TaskCard({ task, canEdit, dragging, onDragStart, onDragEnd, onClick }: 
 }
 
 // Complex Task Modal handling Subtasks and Comments
-function TaskModal({ title, workspaceId, workspace, task, initialStatus, canEdit = true, onClose, onSave, onDelete }: any) {
+function TaskModal({ title, workspaceId, workspace, task, initialStatus, canEdit = true, onClose, onSave, onDelete, onTaskUpdated }: any) {
   const [activeTab, setActiveTab] = useState<'details' | 'subtasks' | 'comments'>('details');
   
   const [form, setForm] = useState({
@@ -442,15 +451,17 @@ function TaskModal({ title, workspaceId, workspace, task, initialStatus, canEdit
                   <select className="input" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as any })} disabled={!canEdit}>
                     <option value="todo">To Do</option>
                     <option value="in_progress">In Progress</option>
+                    <option value="in_review">In Review</option>
                     <option value="done">Done</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-ink-500 mb-1.5">Priority</label>
                   <select className="input" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value as any })} disabled={!canEdit}>
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
+                    <option value="urgent">🔴 Urgent</option>
+                    <option value="high">🟠 High Priority</option>
+                    <option value="medium">🟡 Medium Priority</option>
+                    <option value="low">🟢 Low Priority</option>
                   </select>
                 </div>
                 <div>
@@ -476,22 +487,51 @@ function TaskModal({ title, workspaceId, workspace, task, initialStatus, canEdit
                     {task.subtasks?.map((sub: any) => (
                       <div key={sub._id} className="flex items-center justify-between p-2.5 rounded-lg bg-ink-900/50 border border-white/5 hover:border-white/10 transition group">
                         <div className="flex items-center gap-3">
-                          <button onClick={() => canEdit && api.toggleSubtask(workspaceId, task._id, sub._id, !sub.isCompleted)} disabled={!canEdit} className={cn("w-5 h-5 rounded border flex items-center justify-center transition-colors", sub.isCompleted ? "bg-accent border-accent text-white" : "border-ink-600 hover:border-accent")}>
+                          <button
+                            onClick={async () => {
+                              if (!canEdit) return;
+                              try {
+                                const res = await api.toggleSubtask(workspaceId, task._id, sub._id, !sub.isCompleted);
+                                onTaskUpdated?.(res.task);
+                              } catch {}
+                            }}
+                            disabled={!canEdit}
+                            className={cn("w-5 h-5 rounded border flex items-center justify-center transition-colors", sub.isCompleted ? "bg-accent border-accent text-white" : "border-ink-600 hover:border-accent")}
+                          >
                             {sub.isCompleted && <Check className="w-3.5 h-3.5"/>}
                           </button>
                           <span className={cn("text-sm", sub.isCompleted && "line-through text-ink-500")}>{sub.title}</span>
                         </div>
                         {canEdit && (
-                          <button onClick={() => api.deleteSubtask(workspaceId, task._id, sub._id)} className="text-ink-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"><Trash2 className="w-3.5 h-3.5"/></button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await api.deleteSubtask(workspaceId, task._id, sub._id);
+                                onTaskUpdated?.(res.task);
+                              } catch {}
+                            }}
+                            className="text-ink-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5"/>
+                          </button>
                         )}
                       </div>
                     ))}
                     {task.subtasks?.length === 0 && <p className="text-sm text-ink-500 text-center py-6">No subtasks yet.</p>}
                   </div>
                   {canEdit && (
-                    <form onSubmit={async (e) => { e.preventDefault(); if(newSubtask.trim()){ await api.addSubtask(workspaceId, task._id, newSubtask); setNewSubtask(''); } }} className="flex gap-2 mt-4">
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (newSubtask.trim()) {
+                        try {
+                          const res = await api.addSubtask(workspaceId, task._id, newSubtask.trim());
+                          onTaskUpdated?.(res.task);
+                          setNewSubtask('');
+                        } catch {}
+                      }
+                    }} className="flex gap-2 mt-4">
                       <input className="input" placeholder="Add a subtask..." value={newSubtask} onChange={e => setNewSubtask(e.target.value)} />
-                      <button type="submit" className="btn btn-secondary bg-ink-800 hover:bg-ink-700 text-white px-4 border border-white/10 rounded-lg font-medium"><Plus className="w-4 h-4"/></button>
+                      <button type="submit" className="btn btn-ghost border border-white/10 px-4"><Plus className="w-4 h-4"/></button>
                     </form>
                   )}
                 </>
@@ -547,29 +587,154 @@ function TaskModal({ title, workspaceId, workspace, task, initialStatus, canEdit
   );
 }
 
-// Members Panel stays the same logically but styled
 function MembersPanel({ workspace, myRole, currentUserId, onClose, onChange }: any) {
-  // same implementation ...
+  const [copied, setCopied] = useState(false);
+  const [roleLoading, setRoleLoading] = useState<string | null>(null);
+
+  const copyInviteCode = async () => {
+    try {
+      await navigator.clipboard.writeText(workspace.inviteCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  const canManage = myRole === 'owner' || myRole === 'admin';
+
+  const handleRoleChange = async (memberId: string, newRole: string) => {
+    setRoleLoading(memberId);
+    try {
+      await api.updateMemberRole(workspace._id, memberId, newRole);
+      onChange();
+    } catch {}
+    setRoleLoading(null);
+  };
+
+  const handleRemove = async (memberId: string) => {
+    if (!confirm('Remove this member from the workspace?')) return;
+    try {
+      await api.removeMember(workspace._id, memberId);
+      onChange();
+    } catch {}
+  };
+
+  const allMembers = [
+    { user: workspace.owner, role: 'owner', _id: workspace.owner._id },
+    ...workspace.members.map((m: any) => ({ ...m, user: m.user })),
+  ];
+
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/80 backdrop-blur-sm" onClick={onClose}>
-      <div className="card p-6 w-full max-w-lg border-white/10" onClick={(e) => e.stopPropagation()}>
-         <div className="flex items-center justify-between mb-5">
-           <h2 className="font-display text-2xl">Members</h2>
-           <button onClick={onClose} className="text-ink-400"><X className="w-5 h-5"/></button>
-         </div>
-         <div className="mb-5">
-           <label className="block text-xs uppercase tracking-wider text-ink-500 mb-1.5">Invite code</label>
-           <div className="flex gap-2">
-             <code className="input font-mono text-center tracking-widest text-accent flex-1">{workspace.inviteCode}</code>
-             <button className="btn btn-ghost border border-white/10"><Copy className="w-4 h-4" /></button>
-           </div>
-         </div>
-         <div className="space-y-2">
-             <div className="flex items-center justify-between bg-ink-900/50 border border-white/5 rounded-lg px-3 py-2 text-sm">
-                 <span className="font-medium text-white">{workspace.owner.name} (owner)</span>
-             </div>
-         </div>
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="card w-full max-w-lg border-white/10 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <h2 className="font-display text-2xl font-bold">Team Members</h2>
+            <span className="text-xs bg-white/5 px-2.5 py-1 rounded-full text-ink-400">
+              {allMembers.length} {allMembers.length === 1 ? 'member' : 'members'}
+            </span>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-ink-400 hover:text-white hover:bg-white/5 transition-all">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-4 border-b border-white/[0.06]">
+          <label className="block text-xs uppercase tracking-wider text-ink-500 mb-2 font-semibold">Invite Code</label>
+          <div className="flex gap-2">
+            <code className="input font-mono text-center tracking-widest text-accent flex-1 select-all cursor-text">
+              {workspace.inviteCode}
+            </code>
+            <button
+              onClick={copyInviteCode}
+              className="btn btn-ghost border border-white/10 min-w-[80px]"
+              title="Copy invite code"
+            >
+              {copied ? (
+                <><Check className="w-4 h-4 text-emerald-400" /> Copied</>
+              ) : (
+                <><Copy className="w-4 h-4" /> Copy</>
+              )}
+            </button>
+          </div>
+          <p className="text-xs text-ink-500 mt-2">Share this code with anyone you want to invite to this workspace.</p>
+        </div>
+
+        <div className="px-6 py-4 space-y-2 max-h-80 overflow-y-auto">
+          {allMembers.map((m: any) => {
+            const isOwner = m.role === 'owner';
+            const isCurrentUser = m.user._id === currentUserId;
+            const initials = m.user.name?.split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase() || '?';
+
+            return (
+              <div
+                key={m.user._id}
+                className="flex items-center justify-between bg-ink-900/50 border border-white/5 rounded-xl px-4 py-3 hover:border-white/10 transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                    style={{ background: m.user.avatarColor || '#6366f1' }}
+                  >
+                    {initials}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-white">
+                      {m.user.name}
+                      {isCurrentUser && <span className="ml-2 text-xs text-ink-500 font-normal">(you)</span>}
+                    </p>
+                    <p className="text-xs text-ink-500">{m.user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isOwner ? (
+                    <span className="badge bg-accent/15 text-accent border border-accent/25">owner</span>
+                  ) : canManage && !isCurrentUser ? (
+                    <>
+                      {roleLoading === m._id ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-ink-400" />
+                      ) : (
+                        <select
+                          value={m.role}
+                          onChange={(e) => handleRoleChange(m._id, e.target.value)}
+                          className="text-xs bg-ink-800 border border-white/10 rounded-lg px-2 py-1 text-ink-200 cursor-pointer"
+                        >
+                          <option value="admin">admin</option>
+                          <option value="member">member</option>
+                          <option value="viewer">viewer</option>
+                        </select>
+                      )}
+                      <button
+                        onClick={() => handleRemove(m._id)}
+                        className="p-1.5 text-ink-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                        title="Remove member"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <span className="badge bg-white/5 text-ink-400 border border-white/10 capitalize">{m.role}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
     </motion.div>
-  )
+  );
 }
