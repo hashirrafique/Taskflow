@@ -3,7 +3,8 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { motion } from 'framer-motion';
-import { Kanban, ArrowLeft, Mail, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Mail, Loader2, CheckCircle2 } from 'lucide-react';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 justify-center mb-8 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/30">
-            <Kanban className="w-5 h-5 text-white" />
+            <TaskFlowLogo size={20} />
           </div>
           <span className="font-display text-2xl font-bold">TaskFlow</span>
         </Link>

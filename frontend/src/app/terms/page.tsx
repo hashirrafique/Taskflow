@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Kanban } from 'lucide-react';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 export default function TermsPage() {
   return (
@@ -8,7 +8,7 @@ export default function TermsPage() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center">
-              <Kanban className="w-4 h-4 text-white" />
+              <TaskFlowLogo size={16} />
             </div>
             <span className="font-display text-xl font-bold">TaskFlow</span>
           </Link>

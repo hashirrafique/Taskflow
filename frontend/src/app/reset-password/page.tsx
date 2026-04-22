@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api, setToken } from '@/lib/api';
 import { motion } from 'framer-motion';
-import { Kanban, ArrowLeft, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Suspense } from 'react';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -63,7 +64,7 @@ function ResetPasswordForm() {
       >
         <Link href="/" className="flex items-center gap-2.5 justify-center mb-8 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/30">
-            <Kanban className="w-5 h-5 text-white" />
+            <TaskFlowLogo size={20} />
           </div>
           <span className="font-display text-2xl font-bold">TaskFlow</span>
         </Link>

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Zap, Shield, ArrowRight, Users, BarChart3, MessageSquare,
   Layers, Bell, Lock, Star, ChevronRight, Github, Twitter, Globe,
-  Kanban, Clock, Tag, Sparkles, ChevronDown
+  Clock, Tag, Sparkles, ChevronDown
 } from 'lucide-react';
 
 function FaqItem({ q, a, i }: { q: string; a: string; i: number }) {
@@ -64,7 +64,7 @@ export default function Home() {
       <nav className="relative z-20 max-w-7xl mx-auto px-6 py-5 flex items-center justify-between border-b border-white/[0.04]">
         <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/30">
-            <Kanban className="w-5 h-5 text-white" />
+            <TaskFlowLogo size={20} />
           </div>
           <span className="font-display text-2xl font-bold tracking-wide">TaskFlow</span>
         </motion.div>
@@ -362,6 +362,7 @@ export default function Home() {
             { q: 'Is TaskFlow really free to start?', a: "Yes. No credit card required. Our free plan includes 3 workspaces, 5 members each, and unlimited tasks to get you started." },
             { q: 'How does real-time collaboration work?', a: "TaskFlow uses WebSockets to push changes instantly across all connected clients. When a teammate moves a task, you see it move in real-time — no page refresh needed." },
             { q: 'Can I import my data from Trello or Jira?', a: "CSV import is available on all plans. We're working on native Trello and Jira importers for the Pro plan. You can also use our API for custom migrations." },
+import TaskFlowLogo from '@/components/TaskFlowLogo';
             { q: 'How secure is my data?', a: "All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Passwords are hashed with bcrypt. We run penetration tests quarterly and operate with zero-trust networking." },
             { q: 'What happens to my data if I cancel?', a: "You have 30 days to export everything after cancellation. We provide full data exports in JSON and CSV format. Your data is never held hostage." },
             { q: 'Do you offer discounts for startups or nonprofits?', a: "Yes — 50% off Pro for qualifying nonprofits and early-stage startups. Contact us at support@taskflow.app with proof of status." },
@@ -397,7 +398,7 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center">
-                  <Kanban className="w-4 h-4 text-white" />
+                  <TaskFlowLogo size={16} />
                 </div>
                 <span className="font-display text-xl font-bold">TaskFlow</span>
               </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Kanban, ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 export default function NotFound() {
   return (
@@ -11,7 +12,7 @@ export default function NotFound() {
 
       <Link href="/" className="flex items-center gap-2.5 mb-12 group">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/30">
-          <Kanban className="w-5 h-5 text-white" />
+          <TaskFlowLogo size={20} />
         </div>
         <span className="font-display text-2xl font-bold">TaskFlow</span>
       </Link>

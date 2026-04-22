@@ -3,14 +3,14 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
-  LogOut, Settings, User, Bell, ChevronDown, Kanban,
-  LayoutDashboard, X, ListChecks, Calendar, BarChart3,
+  LogOut, Settings, User, Bell, ChevronDown, LayoutDashboard, X, ListChecks, Calendar, BarChart3,
   Command as CommandIcon, CheckCheck, Trash2, Loader2
 } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api, API_URL } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { relativeTime } from '@/lib/time';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -106,7 +106,7 @@ export default function Topbar() {
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/25 group-hover:scale-105 transition-transform">
-              <Kanban className="w-4.5 h-4.5 text-white" />
+              <TaskFlowLogo size={18} />
             </div>
             <span className="font-display text-xl font-bold tracking-tight">TaskFlow</span>
           </Link>

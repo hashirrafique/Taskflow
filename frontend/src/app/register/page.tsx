@@ -2,8 +2,9 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2, Kanban, ArrowRight, Eye, EyeOff, Check } from 'lucide-react';
+import { Loader2, ArrowRight, Eye, EyeOff, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import TaskFlowLogo from '@/components/TaskFlowLogo';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -51,7 +52,7 @@ export default function RegisterPage() {
       >
         <Link href="/" className="flex items-center gap-2.5 mb-8 justify-center group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-600 flex items-center justify-center shadow-lg shadow-accent/30 group-hover:scale-105 transition-transform">
-            <Kanban className="w-5 h-5 text-white" />
+            <TaskFlowLogo size={20} />
           </div>
           <span className="font-display text-2xl font-bold">TaskFlow</span>
         </Link>
